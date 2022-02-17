@@ -5,6 +5,22 @@
 #include <Adafruit_FT6206.h>
 #include <stdint.h>
 
+#define LengthOfRect          115
+#define HeightOfRect          100
+#define x_Coordinate_Rect1    30
+#define y_Coordinate_Rect1    40
+#define x_Coordinate_Rect2    175
+#define y_Coordinate_Rect2    40
+
+#define Circle_fill           4
+#define Circle_size           5
+#define x_Coordinate_Circle1  140
+#define y_Coordinate_Circle1  220
+#define x_Coordinate_Circle2  160
+#define y_Coordinate_Circle2  220
+#define x_Coordinate_Circle3  180
+#define y_Coordinate_Circle3  220
+
 #define WIDTH     320
 #define HEIGHT    240
 #define TFT_RST   8
@@ -39,21 +55,7 @@ void setup() {
 void loop() {
 
   //defining variables
-  int LengthOfRect = 115;
-  int HeightOfRect = 200;
-  int x_Coordinate_Rect1 = 30;
-  int y_Coordinate_Rect1 = 40;
-  int x_Coordinate_Rect2 = 175;
-  int y_Coordinate_Rect2 = 40;
 
-  int Circle_fill = 4;
-  int Circle_size = 5;
-  int x_Coordinate_Circle1 = 140;
-  int y_Coordinate_Circle1 = 220;
-  int x_Coordinate_Circle2 = 160;
-  int y_Coordinate_Circle2 = 220;
-  int x_Coordinate_Circle3 = 180;
-  int y_Coordinate_Circle3 = 220;
   //end of variables
 
 
