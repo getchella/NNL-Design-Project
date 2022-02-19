@@ -53,12 +53,6 @@ void setup() {
 }
 
 void loop() {
-
-  //defining variables
-
-  //end of variables
-
-
   
   if (ts.touched()) {   
     // Retrieve a point  
@@ -73,11 +67,19 @@ void loop() {
     Serial.print("("); Serial.print(x);
     Serial.print(", "); Serial.print(y);
     Serial.println(")");
-
+   
     switch(screen) {
       case 1:
         if ((x > 245 && x < 305) && (y > 185 && y < 225)) {
           setScreen2();
+        }
+
+        else if ((x > 30 && x < 145) && (y > 40 && y < 140)) {
+          TempScreen();
+        }
+
+        else if ((x > 175 && x < 290) && (y > 40 && y < 140)) {
+          HumidityScreen();
         }
         break;
 
@@ -88,11 +90,82 @@ void loop() {
         else if ((x > 15 && x < 75) && (y > 185 && y < 225)) {
           setScreen1();
         }
+
+        else if ((x > 30 && x < 145) && (y > 40 && y < 140)) {
+          Sensor3Screen();
+        }
+
+        else if ((x > 175 && x < 290) && (y > 40 && y < 140)) {
+          Sensor4Screen();
+        }
         break; 
 
       case 3:
         if ((x > 15 && x < 75) && (y > 185 && y < 225)) {
           setScreen2();
+        }
+
+        else if ((x > 30 && x < 145) && (y > 40 && y < 140)) {
+          Bluetooth();
+        }
+
+        else if ((x > 175 && x < 290) && (y > 40 && y < 140)) {
+          SD_Card();
+        }
+        break;
+
+      case 4:
+        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+          tft.fillRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_LIGHTGREY);
+          tft.fillRect(15, 15, 60, 40, ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen1();  
+        }
+        break;
+
+      case 5:
+        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+          tft.fillRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_LIGHTGREY);
+          tft.fillRect(15, 15, 60, 40, ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen1();  
+        }
+        break;
+
+        case 6:
+        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+          tft.fillRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_LIGHTGREY);
+          tft.fillRect(15, 15, 60, 40, ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen2();  
+        }
+        break;
+
+        case 7:
+        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+          tft.fillRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_LIGHTGREY);
+          tft.fillRect(15, 15, 60, 40, ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen2();  
+        }
+        break;
+
+        case 8:
+        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+          tft.fillRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_LIGHTGREY);
+          tft.fillRect(15, 15, 60, 40, ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen3();  
+        }
+        break;
+
+
+        case 9:
+        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+          tft.fillRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_LIGHTGREY);
+          tft.fillRect(15, 15, 60, 40, ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen3();  
         }
         break;
     }
@@ -142,6 +215,18 @@ void drawLeftArrowBox() {
   }
 }
 
+void drawBacktArrowBox() {
+  tft.drawRect(15, 15, 60, 40, ILI9341_BLACK);
+  tft.fillRect(16, 16, 58, 38, ILI9341_RED);
+  tft.drawFastHLine(29, 35, 31, ILI9341_WHITE);
+
+  int x, y_low, y_high;
+  for (x=30, y_low=34, y_high=36; x<=34 && y_low>=30 && y_high<=40; x++, y_low--, y_high++) {
+    tft.drawPixel(x, y_low, ILI9341_WHITE);
+    tft.drawPixel(x, y_high, ILI9341_WHITE);
+  }
+}
+
 /**
  * Displays screen 1 which displays humidity and temperature
  **/
@@ -177,3 +262,83 @@ void setScreen3() {
   tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_LIGHTGREY);
   tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_BLACK);
 }
+
+void TempScreen() {
+  screen = 4;
+  tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
+  tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
+  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  drawBacktArrowBox(); //draw back arrow
+  tft.drawRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_NAVY);
+  
+}
+
+void HumidityScreen() {
+  screen = 5;
+  tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
+  tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
+  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  drawBacktArrowBox(); //draw back arrow
+  tft.drawRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_NAVY);
+}
+
+void Sensor3Screen() {
+  screen = 6;
+  tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
+  tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
+  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  drawBacktArrowBox(); //draw back arrow
+  tft.drawRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_NAVY);
+}
+
+void Sensor4Screen() {
+  screen = 7;
+  tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
+  tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
+  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  drawBacktArrowBox(); //draw back arrow
+  tft.drawRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_NAVY);
+}
+
+void Bluetooth() {
+  screen = 8;
+  tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
+  tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
+  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  drawBacktArrowBox(); //draw back arrow
+  //tft.drawRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_NAVY);
+}
+
+void SD_Card() {
+  screen = 9;
+  tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
+  tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
+  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
+  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
+  drawBacktArrowBox(); //draw back arrow
+  //tft.drawRect(x_Coordinate_Rect1 + 50, y_Coordinate_Rect1 + 30, LengthOfRect + 50, HeightOfRect + 50, ILI9341_NAVY);
+}
+
