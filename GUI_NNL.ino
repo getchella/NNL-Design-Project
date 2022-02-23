@@ -39,6 +39,7 @@ uint8_t screen;
 
 void setup() {
   Serial.begin(9600);
+  
   tft.begin();
   if (! ts.begin(40)) {  // pass in 'sensitivity' coefficient
     Serial.println("Couldn't start FT6206 touchscreen controller");
@@ -49,7 +50,7 @@ void setup() {
   tft.fillScreen(ILI9341_LIGHTGREY);   // sets background to gray
 
   createGuiMainFrame();
-  setScreen1();  
+  setScreen1();
 }
 
 void loop() {
@@ -237,6 +238,15 @@ void setScreen1() {
   tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_fill, ILI9341_BLACK);
   tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_LIGHTGREY);
   tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_LIGHTGREY);
+  tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1+1, LengthOfRect-2, HeightOfRect-2, ILI9341_RED);
+  tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2+1, LengthOfRect-2, HeightOfRect-2, ILI9341_RED);
+
+  tft.setCursor(65, 80);
+  tft.setTextSize(2.5);
+  tft.println("Temp");
+  tft.setCursor(185, 80);
+  tft.setTextSize(2.5);
+  tft.println("Humidity");
 }
 
 /**
@@ -249,6 +259,15 @@ void setScreen2() {
   tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_fill, ILI9341_LIGHTGREY);
   tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_BLACK);
   tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_LIGHTGREY);
+
+  tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1+1, LengthOfRect-2, HeightOfRect-2, ILI9341_RED);
+  tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2+1, LengthOfRect-2, HeightOfRect-2, ILI9341_RED);
+  tft.setCursor(50, 80);
+  tft.setTextSize(2.5);
+  tft.println("Sensor2");
+  tft.setCursor(195, 80);
+  tft.setTextSize(2.5);
+  tft.println("Sensor3");
 }
 
 /**
@@ -261,6 +280,15 @@ void setScreen3() {
   tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_fill, ILI9341_LIGHTGREY);
   tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_LIGHTGREY);
   tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_BLACK);
+  tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1+1, LengthOfRect-2, HeightOfRect-2, ILI9341_RED);
+  tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2+1, LengthOfRect-2, HeightOfRect-2, ILI9341_RED);
+
+  tft.setCursor(35, 80);
+  tft.setTextSize(2.5);
+  tft.println("Bluetooth");
+  tft.setCursor(190, 80);
+  tft.setTextSize(2.5);
+  tft.println("SD_Card");
 }
 
 void TempScreen() {
