@@ -480,7 +480,7 @@ void Display_Humidity(float high, float low) {
 void Display_Humidity(float high, float low) {
   float value;    //store the voltage
   float Pressure;     //store the pressure
-  value = analogRead(1);     // read the voltage from the sensor
+  value = analogRead(2);     // read the voltage from the sensor
   if (errorcheck(value))
   {
     Pressure  = scale(high, low, value); //run the math to convert the voltage to pressure value
@@ -505,7 +505,7 @@ void Display_Humidity(float high, float low) {
 void Display_Sensor4(float high, float low) {
   float value;    //store the voltage
   float Sensor4;     //store the sensor4
-  value = analogRead(1);     // read the voltage from the sensor
+  value = analogRead(3);     // read the voltage from the sensor
   if (errorcheck(value))
   {
     Sensor4  = scale(high, low, value); //run the math to convert the voltage to sensor4 value
