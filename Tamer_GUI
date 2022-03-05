@@ -188,11 +188,31 @@ void loop() {
         }
         break;
     }
-  } else {
-    if (screen == 4) {
-      Display_Temp(temp_high, temp_low);
-    }
   }
+  
+  //if the screen is not touched
+  else
+    {
+      if (screen == 4)
+      {
+        Display_Temp(temp_high, temp_low);
+      }
+
+      else if (screen == 5)
+      {
+        Display_Humidity(humidity_high, humidity_low);
+      }
+
+      else if (screen == 6)
+      {
+        Display_Pressure(pressure_high, pressure_low);
+      }
+
+      else if
+      {
+        Display_Sensor4(sensor4_high, sensor4_low)
+      }
+    }
 
   delay(500);
 }
@@ -430,6 +450,82 @@ void Display_Temp(float high, float low) {
     tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
   }
 }
+
+//read, convert then display the humidity to the screen
+void Display_Humidity(float high, float low) {
+  float value;    //store the voltage
+  float Humidity;     //store the humidity
+  value = analogRead(1);     // read the voltage from the sensor
+  if (errorcheck(value))
+  {
+    Humidity  = scale(high, low, value); //run the math to convert the voltage to humidity value
+    tft.setCursor(120, 100);
+    tft.setTextSize(3);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.print(Humidity);       //display the humidity to the screen
+    delay(1000);              //wait one second before it reads again
+    tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
+  }
+  else {
+    tft.setCursor(120, 100);
+    tft.setTextSize(3);
+    tft.setTextColor(ILI9341_RED);
+    tft.print("ERROR");
+    delay(1000);              //wait one second before it reads again
+    tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
+  }
+}
+
+//read, convert then display the pressure to the screen
+void Display_Humidity(float high, float low) {
+  float value;    //store the voltage
+  float Pressure;     //store the pressure
+  value = analogRead(1);     // read the voltage from the sensor
+  if (errorcheck(value))
+  {
+    Pressure  = scale(high, low, value); //run the math to convert the voltage to pressure value
+    tft.setCursor(120, 100);
+    tft.setTextSize(3);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.print(Pressure);       //display the pressure to the screen
+    delay(1000);              //wait one second before it reads again
+    tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
+  }
+  else {
+    tft.setCursor(120, 100);
+    tft.setTextSize(3);
+    tft.setTextColor(ILI9341_RED);
+    tft.print("ERROR");
+    delay(1000);              //wait one second before it reads again
+    tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
+  }
+}
+
+//read, convert then display the sensor4 to the screen
+void Display_Sensor4(float high, float low) {
+  float value;    //store the voltage
+  float Sensor4;     //store the sensor4
+  value = analogRead(1);     // read the voltage from the sensor
+  if (errorcheck(value))
+  {
+    Sensor4  = scale(high, low, value); //run the math to convert the voltage to sensor4 value
+    tft.setCursor(120, 100);
+    tft.setTextSize(3);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.print(Sensor4);       //display the sensor4 to the screen
+    delay(1000);              //wait one second before it reads again
+    tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
+  }
+  else {
+    tft.setCursor(120, 100);
+    tft.setTextSize(3);
+    tft.setTextColor(ILI9341_RED);
+    tft.print("ERROR");
+    delay(1000);              //wait one second before it reads again
+    tft.fillRect(110, 90, 120, 80, ILI9341_LIGHTGREY);
+  }
+}
+
 
 float scale(float high, float low, float value)
 {
