@@ -208,10 +208,10 @@ void loop() {
         Display_Pressure(pressure_high, pressure_low);
       }
 
-      else if
+      /*else if (screen == 7)
       {
-        Display_Sensor4(sensor4_high, sensor4_low)
-      }
+        Display_Sensor4(sensor4_high, sensor4_low);
+      }*/
     }
 
   delay(500);
@@ -477,7 +477,7 @@ void Display_Humidity(float high, float low) {
 }
 
 //read, convert then display the pressure to the screen
-void Display_Humidity(float high, float low) {
+void Display_Pressure(float high, float low) {
   float value;    //store the voltage
   float Pressure;     //store the pressure
   value = analogRead(2);     // read the voltage from the sensor
