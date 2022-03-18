@@ -42,14 +42,20 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_R
 Adafruit_FT6206 ts = Adafruit_FT6206();
 
 int lowTmp, highTmp;
+char tempUnit = 'C';
+char humidityUnit = '%';
+String pressureUnit = String("PSI");
+char sensor4Unit;
 uint8_t screen;
 float tempValue, humidityValue, pressureValue, sensor4Value;
-float tempHigh = 120;
+float tempHigh = 80;
 float tempLow = -40;        // Celsius by default
 float humidityHigh = 100;
 float humidityLow = 0;    // %
-float pressureHigh;
-float pressureLow;    // PSI by default
+float pressureHigh = 100;
+float pressureLow = 0;    // PSI by default
+float sensor4High = 5;
+float sensor4Low = 1;
 
 void setup() {
   Serial.begin(9600);
@@ -155,6 +161,29 @@ void loop() {
         else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           tempLow = lowTmp;
           tempHigh = highTmp;
+          tft.fillScreen(ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen1();
+        }
+        else if((x > 135 && x < 215) && (y > 150 && y < 180)){
+          tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
+          tft.fillRect(218, 151, 81, 28, ILI9341_RED);
+          tft.setTextColor(ILI9341_WHITE);
+          tft.setCursor(172, 158);
+          tft.print('C');
+          tft.setCursor(255, 158);
+          tft.print('F');
+          tempUnit = 'C';
+        }
+        else if ((x > 215 && x < 295) && (y > 150 && y < 180)){
+          tft.fillRect(136, 151, 81, 28, ILI9341_RED);
+          tft.fillRect(218, 151, 81, 28, ILI9341_DARKGREEN);
+          tft.setTextColor(ILI9341_WHITE);
+          tft.setCursor(172, 158);
+          tft.print('C');
+          tft.setCursor(255, 158);
+          tft.print('F');
+          tempUnit = 'F';
         }
         break;
 
@@ -181,8 +210,11 @@ void loop() {
           printHighValue();
         }
         else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
-          tempLow = lowTmp;
-          tempHigh = highTmp;
+          humidityLow = lowTmp;
+          humidityHigh = highTmp;
+          tft.fillScreen(ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen1();
         }
         break;
 
@@ -209,9 +241,35 @@ void loop() {
           printHighValue();
         }
         else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
-          tempLow = lowTmp;
-          tempHigh = highTmp;
+          pressureLow = lowTmp;
+          pressureHigh = highTmp;
+          tft.fillScreen(ILI9341_LIGHTGREY);
+          createGuiMainFrame();
+          setScreen1();
         }
+        else if((x > 135 && x < 215) && (y > 150 && y < 180)){
+          tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
+          tft.fillRect(218, 151, 81, 28, ILI9341_RED);
+          tft.setTextColor(ILI9341_WHITE);
+          tft.setTextSize(2);
+          tft.setCursor(160, 158);
+          tft.print("PSI");
+          tft.setCursor(250, 158);
+          tft.print("Pa");
+          pressureUnit = String("PSI"); 
+        }
+        else if ((x > 215 && x < 295) && (y > 150 && y < 180)){
+          tft.fillRect(136, 151, 81, 28, ILI9341_RED);
+          tft.fillRect(218, 151, 81, 28, ILI9341_DARKGREEN);
+          tft.setTextColor(ILI9341_WHITE);
+          tft.setTextSize(2);
+          tft.setCursor(160, 158);
+          tft.print("PSI");
+          tft.setCursor(250, 158);
+          tft.print("Pa");
+          pressureUnit = String("Pa"); 
+        }
+        
         break;
 
         case 7:
@@ -239,7 +297,7 @@ void loop() {
         else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           tempLow = lowTmp;
           tempHigh = highTmp;
-        }
+        }        
         break;
 
         case 8:
@@ -269,20 +327,18 @@ void loop() {
         humidityValue = analogRead(1);
         pressureValue = analogRead(2);
         sensor4Value = analogRead(3);
-        tft.fillRect(40, 30, 90, 22, ILI9341_WHITE);
-        tft.fillRect(185, 30, 90, 22, ILI9341_WHITE);
-        tft.fillRect(40, 115, 90, 22, ILI9341_WHITE);
-        tft.fillRect(185, 115, 90, 22, ILI9341_WHITE);
-        Display_Value(tempHigh, tempLow, tempValue, 2, 40, 30);
-        Display_Value(humidityHigh, humidityLow, humidityValue, 2, 185, 30);
-        Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 115);
-        Display_Value(pressureHigh, pressureLow, pressureValue, 2, 185, 115);
+        tft.fillRect(40, 45, 90, 22, ILI9341_WHITE);
+        tft.fillRect(185, 45, 90, 22, ILI9341_WHITE);
+        tft.fillRect(40, 130, 90, 22, ILI9341_WHITE);
+        tft.fillRect(185, 130, 90, 22, ILI9341_WHITE);
+        
+        Display_Value(tempHigh, tempLow, tempValue, 2, 40, 45);
+        Display_Value(humidityHigh, humidityLow, humidityValue, 2, 185, 45);
+        Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 130);
+        Display_Value(pressureHigh, pressureLow, pressureValue, 2, 185, 130);
         delay(1000);
         break;
       case 4: // Temperature
-        tempValue = analogRead(0);
-        Display_Value(tempHigh, tempLow, tempValue, 3, 120, 150);
-        delay(1000);
       case 5: // Humidity
       case 6: // Pressure
       case 7: // Sensor 4
@@ -371,6 +427,35 @@ void setScreen1() {
   tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
   tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1+HeightOfRect-34, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
   tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2+HeightOfRect-34, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
+  tft.setTextSize(1);
+  tft.setTextColor(ILI9341_BLACK);
+  tft.setCursor(55, 25);
+  tft.print("TEMPERATURE");
+  tft.setCursor(207, 25);
+  tft.print("HUMIDITY");
+  tft.setCursor(65, 110);
+  tft.print("PRESSURE");
+  tft.setCursor(215, 110);
+  tft.print("SENSOR4");
+
+  tft.setTextSize(1);
+  tft.setCursor(122, 67);
+  tft.print("o");
+  tft.setTextSize(2);
+  tft.setCursor(129, 70);
+  tft.print(tempUnit);
+
+  if (pressureUnit == "PSI"){
+    tft.setCursor(107, 155);
+    tft.print(pressureUnit);
+  }
+  else if (pressureUnit == "Pa"){
+    tft.setCursor(120, 155);
+    tft.print(pressureUnit);
+  }
+
+  tft.setCursor(272, 70);
+  tft.print(humidityUnit);
   /*
   tft.setCursor(65, 80);
   tft.setTextSize(2);
@@ -444,29 +529,41 @@ void TempScreen() {
 
 void HumidityScreen() {
   screen = 5;
+  lowTmp = (int) humidityLow;
+  highTmp = (int) humidityHigh;
   setValueScreen();
   tft.setCursor(5, 230);
   tft.setTextSize(1);
   tft.setTextColor(ILI9341_BLACK);
   tft.print("HUMIDITY");
+  printLowValue();
+  printHighValue();
 }
 
 void PressureScreen() {
   screen = 6;
+  lowTmp = (int) pressureLow;
+  highTmp = (int) pressureHigh;
   setValueScreen();
   tft.setCursor(5, 230);
   tft.setTextSize(1);
   tft.setTextColor(ILI9341_BLACK);
   tft.print("PRESSURE");
+  printLowValue();
+  printHighValue();
 }
 
 void Sensor4Screen() {
   screen = 7;
+  lowTmp = (int) sensor4Low;
+  lowTmp = (int) sensor4High;
   setValueScreen();
   tft.setCursor(5, 230);
   tft.setTextSize(1);
   tft.setTextColor(ILI9341_BLACK);
   tft.print("SENSOR 4");
+  printLowValue();
+  printHighValue();
 }
 
 void setValueScreen() {
@@ -507,6 +604,72 @@ void setValueScreen() {
   tft.print('-');
   tft.setCursor(275, 72);
   tft.print('+');
+
+  if (screen == 4)
+  {
+    if(tempUnit == 'C'){
+      tft.setCursor(188, 130);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.print("UNITS");
+      tft.drawRect(135, 150, 165, 30, ILI9341_BLACK);
+      tft.drawFastVLine(217, 151, 28, ILI9341_BLACK);
+      tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
+      tft.fillRect(218, 151, 81, 28, ILI9341_RED);
+      tft.setTextColor(ILI9341_WHITE);
+      tft.setCursor(172, 158);
+      tft.print('C');
+      tft.setCursor(255, 158);
+      tft.print('F');
+    }
+
+    else if(tempUnit == 'F'){
+      tft.setCursor(188, 130);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.print("UNITS");
+      tft.drawRect(135, 150, 165, 30, ILI9341_BLACK);
+      tft.drawFastVLine(217, 151, 28, ILI9341_BLACK);
+      tft.fillRect(136, 151, 81, 28, ILI9341_RED);
+      tft.fillRect(218, 151, 81, 28, ILI9341_DARKGREEN);
+      tft.setTextColor(ILI9341_WHITE);
+      tft.setCursor(172, 158);
+      tft.print('C');
+      tft.setCursor(255, 158);
+      tft.print('F');
+    }
+  }
+
+  if (screen == 6)
+  {
+    if (pressureUnit == "PSI"){
+      tft.setCursor(188, 130);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.print("UNITS");
+      tft.drawRect(135, 150, 165, 30, ILI9341_BLACK);
+      tft.drawFastVLine(217, 151, 28, ILI9341_BLACK);
+      tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
+      tft.fillRect(218, 151, 81, 28, ILI9341_RED);
+      tft.setTextColor(ILI9341_WHITE);
+      tft.setCursor(160, 158);
+      tft.print("PSI");
+      tft.setCursor(250, 158);
+      tft.print("Pa");
+    }
+    else if (pressureUnit == "Pa"){
+      tft.setCursor(188, 130);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.print("UNITS");
+      tft.drawRect(135, 150, 165, 30, ILI9341_BLACK);
+      tft.drawFastVLine(217, 151, 28, ILI9341_BLACK);
+      tft.fillRect(136, 151, 81, 28, ILI9341_RED);
+      tft.fillRect(218, 151, 81, 28, ILI9341_DARKGREEN);
+      tft.setTextColor(ILI9341_WHITE);
+      tft.setTextSize(2);
+      tft.setCursor(160, 158);
+      tft.print("PSI");
+      tft.setCursor(250, 158);
+      tft.print("Pa");
+    }
+  }
 }
 
 void printLowValue() {
