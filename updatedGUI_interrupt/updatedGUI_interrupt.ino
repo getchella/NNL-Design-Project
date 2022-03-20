@@ -62,14 +62,16 @@ float sensor4Low = 1;
 
 void setup() {
   Serial.begin(9600);
-  TCCR1A = 0;
+  TCCR1A = 0;   // reset timer1 control reg A
+  // set to prescaler of 256
   TCCR1B |= (1<<CS12);
   TCCR1B &= ~(1<<CS11);
   TCCR1B &= ~(1<<CS10);
+  // reset timer1 and set compare value
   TCNT1 = t1_load;
   OCR1A = t1_comp;
-  TIMSK1 = (1<<OCIE1A);
-  sei();
+  TIMSK1 = (1<<OCIE1A);   // enable timer1 compare interrupt
+  sei();    // enables global interrupts
   
   tft.begin();
   if (! ts.begin(40)) {  // pass in 'sensitivity' coefficient
