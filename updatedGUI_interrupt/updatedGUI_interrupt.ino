@@ -4,21 +4,21 @@
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_FT6206.h>
 
+#define SCREEN1       1
+#define SCREEN2       2
+#define TEMP          3
+#define HUMIDITY      4
+#define PRESSURE      5
+#define VOLT_CURRENT  6
+#define BLUETOOTH     7
+#define SD_CARD       8
+
 #define LengthOfRect          115
 #define HeightOfRect          100
 #define x_Coordinate_Rect1    30
 #define y_Coordinate_Rect1    40
 #define x_Coordinate_Rect2    175
 #define y_Coordinate_Rect2    40
-
-#define Circle_fill           4
-#define Circle_size           5
-#define x_Coordinate_Circle1  140
-#define y_Coordinate_Circle1  220
-#define x_Coordinate_Circle2  160
-#define y_Coordinate_Circle2  220
-#define x_Coordinate_Circle3  180
-#define y_Coordinate_Circle3  220
 
 #define WIDTH     320
 #define HEIGHT    240
@@ -28,11 +28,6 @@
 #define TFT_MOSI  11
 #define TFT_MISO  12
 #define TFT_CLK   13
-
-#define TEMP
-#define HUMIDITY
-#define PRESSURE
-#define SENSOR4
 
 const uint16_t t1_load = 0;
 const uint16_t t1_comp = 62500;
@@ -62,6 +57,7 @@ float sensor4Low = 1;
 
 void setup() {
   Serial.begin(9600);
+  
   TCCR1A = 0;   // reset timer1 control reg A
   // set to prescaler of 256
   TCCR1B |= (1<<CS12);
@@ -88,7 +84,7 @@ void setup() {
 
 ISR(TIMER1_COMPA_vect) {
   TCNT1 = t1_load;
-  if (screen == 1) {
+  if (screen == SCREEN1) {
     tempValue = analogRead(0);
     humidityValue = analogRead(1);
     pressureValue = analogRead(2);
@@ -122,21 +118,11 @@ void loop() {
     Serial.println(")");
    
     switch(screen) {
-      case 1:
+      case SCREEN1:
         // Right arrow pressed to move to screen 2
         if ((x > 245 && x < 305) && (y > 185 && y < 225)) {
           setScreen2();
-        }        
-        break;
-
-      case 2:
-        if ((x > 245 && x < 305) && (y > 185 && y < 225)) {
-          setScreen3();
         }
-        else if ((x > 15 && x < 75) && (y > 185 && y < 225)) {
-          setScreen1();
-        }
-
         else if ((x > 30 && x < 145) && (y > 20 && y < 90)) {
           TempScreen();
         }
@@ -151,12 +137,12 @@ void loop() {
 
         else if ((x > 175 && x < 290) && (y > 105 && y < 175)) {
           Sensor4Screen();
-        }
+        }   
         break; 
 
-      case 3:
+      case SCREEN2:
         if ((x > 15 && x < 75) && (y > 185 && y < 225)) {
-          setScreen2();
+          setScreen1();
         }
 
         else if ((x > 30 && x < 145) && (y > 20 && y < 90)) {
@@ -168,29 +154,9 @@ void loop() {
         }
         break;
 
-      case 4:
-        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
-          tft.fillScreen(ILI9341_LIGHTGREY);
-          createGuiMainFrame();
-          setScreen2();  
-        }
-        else if ((x > 135 && x < 175) && (y > 65 && y < 90)) {
-          lowTmp--;
-          printLowValue();
-        }
-        else if ((x > 176 && x < 215) && (y > 65 && y < 90)) {
-          lowTmp++;
-          printLowValue();
-        }
-        else if ((x > 219 && x < 258) && (y > 65 && y < 90)) {
-          highTmp--;
-          printHighValue();
-        }
-        else if ((x > 259 && x < 269) && (y > 65 && y < 90)) {
-          highTmp++;
-          printHighValue();
-        }
-        else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
+      case TEMP:
+        checkScaleButtonPress(x, y);
+        if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           tempLow = lowTmp;
           tempHigh = highTmp;
           tft.fillScreen(ILI9341_LIGHTGREY);
@@ -219,29 +185,9 @@ void loop() {
         }
         break;
 
-      case 5:
-        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
-          tft.fillScreen(ILI9341_LIGHTGREY);
-          createGuiMainFrame();
-          setScreen2();  
-        }
-        else if ((x > 135 && x < 175) && (y > 65 && y < 90)) {
-          lowTmp--;
-          printLowValue();
-        }
-        else if ((x > 176 && x < 215) && (y > 65 && y < 90)) {
-          lowTmp++;
-          printLowValue();
-        }
-        else if ((x > 219 && x < 258) && (y > 65 && y < 90)) {
-          highTmp--;
-          printHighValue();
-        }
-        else if ((x > 259 && x < 269) && (y > 65 && y < 90)) {
-          highTmp++;
-          printHighValue();
-        }
-        else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
+      case HUMIDITY:
+        checkScaleButtonPress(x, y);
+        if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           humidityLow = lowTmp;
           humidityHigh = highTmp;
           tft.fillScreen(ILI9341_LIGHTGREY);
@@ -250,29 +196,9 @@ void loop() {
         }
         break;
 
-        case 6:
-        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
-          tft.fillScreen(ILI9341_LIGHTGREY);
-          createGuiMainFrame();
-          setScreen2();  
-        }
-        else if ((x > 135 && x < 175) && (y > 65 && y < 90)) {
-          lowTmp--;
-          printLowValue();
-        }
-        else if ((x > 176 && x < 215) && (y > 65 && y < 90)) {
-          lowTmp++;
-          printLowValue();
-        }
-        else if ((x > 219 && x < 258) && (y > 65 && y < 90)) {
-          highTmp--;
-          printHighValue();
-        }
-        else if ((x > 259 && x < 269) && (y > 65 && y < 90)) {
-          highTmp++;
-          printHighValue();
-        }
-        else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
+        case PRESSURE:
+        checkScaleButtonPress(x, y);
+        if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           pressureLow = lowTmp;
           pressureHigh = highTmp;
           tft.fillScreen(ILI9341_LIGHTGREY);
@@ -304,48 +230,24 @@ void loop() {
         
         break;
 
-        case 7:
+        case VOLT_CURRENT:
+          checkScaleButtonPress(x, y);     
+          break;
+
+        case BLUETOOTH:
         if ((x > 15 && x < 75) && (y > 15 && y < 55)){
           tft.fillScreen(ILI9341_LIGHTGREY);
-          createGuiMainFrame();
+          createBluetoothSDFrame();
           setScreen2();  
         }
-        else if ((x > 135 && x < 175) && (y > 65 && y < 90)) {
-          lowTmp--;
-          printLowValue();
-        }
-        else if ((x > 176 && x < 215) && (y > 65 && y < 90)) {
-          lowTmp++;
-          printLowValue();
-        }
-        else if ((x > 219 && x < 258) && (y > 65 && y < 90)) {
-          highTmp--;
-          printHighValue();
-        }
-        else if ((x > 259 && x < 269) && (y > 65 && y < 90)) {
-          highTmp++;
-          printHighValue();
-        }
-        else if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
-          tempLow = lowTmp;
-          tempHigh = highTmp;
-        }        
-        break;
-
-        case 8:
-        if ((x > 15 && x < 75) && (y > 15 && y < 55)){
-          tft.fillScreen(ILI9341_LIGHTGREY);
-          createBluetoothSDFrame();
-          setScreen3();  
-        }
         break;
 
 
-        case 9:
+        case SD_CARD:
         if ((x > 15 && x < 75) && (y > 15 && y < 55)){
           tft.fillScreen(ILI9341_LIGHTGREY);
           createBluetoothSDFrame();
-          setScreen3();  
+          setScreen2();  
         }
         break;
     }
@@ -361,17 +263,11 @@ void createGuiMainFrame() {
   tft.drawRect(x_Coordinate_Rect2, y_Coordinate_Rect2-20, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
   tft.drawRect(x_Coordinate_Rect1, y_Coordinate_Rect1+HeightOfRect-35, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
   tft.drawRect(x_Coordinate_Rect2, y_Coordinate_Rect2+HeightOfRect-35, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
-  tft.drawCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_BLACK);
-  tft.drawCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_BLACK);
-  tft.drawCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_BLACK);
 }
 
 void createBluetoothSDFrame() {
   tft.drawRect(x_Coordinate_Rect1, y_Coordinate_Rect1-20, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
   tft.drawRect(x_Coordinate_Rect2, y_Coordinate_Rect2-20, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
-  tft.drawCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_BLACK);
-  tft.drawCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_BLACK);
-  tft.drawCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_BLACK);
 }
 
 /**
@@ -422,9 +318,6 @@ void drawBackArrowBox() {
 void setScreen1() {
   drawRightArrowBox();
   tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have more left screens
-  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_fill, ILI9341_BLACK);
-  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_LIGHTGREY);
   tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
   tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
   tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1+HeightOfRect-34, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
@@ -437,8 +330,8 @@ void setScreen1() {
   tft.print("HUMIDITY");
   tft.setCursor(65, 110);
   tft.print("PRESSURE");
-  tft.setCursor(215, 110);
-  tft.print("SENSOR4");
+  tft.setCursor(189, 110);
+  tft.print("VOLTAGE/CURRENT");
 
   tft.setTextSize(1);
   tft.setCursor(122, 67);
@@ -458,6 +351,9 @@ void setScreen1() {
 
   tft.setCursor(272, 70);
   tft.print(humidityUnit);
+
+  tft.setCursor(272, 155);
+  tft.print('V');
   /*
   tft.setCursor(65, 80);
   tft.setTextSize(2);
@@ -465,45 +361,16 @@ void setScreen1() {
   tft.setCursor(185, 80);
   tft.setTextSize(2);
   tft.print("Humidity"); */
-  screen = 1;
-}
-
-/**
- * Displays screen 2
- **/
-void setScreen2() {
-  screen = 2;
-  drawLeftArrowBox();
-  drawRightArrowBox();
-  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_fill, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_BLACK);
-  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_LIGHTGREY);
-  tft.drawRect(x_Coordinate_Rect1, y_Coordinate_Rect1+HeightOfRect-35, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
-  tft.drawRect(x_Coordinate_Rect2, y_Coordinate_Rect2+HeightOfRect-35, LengthOfRect, HeightOfRect-30, ILI9341_BLACK);
-
-  tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
-  tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
-  tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1+HeightOfRect-34, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
-  tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2+HeightOfRect-34, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
-
-  tft.setTextSize(2);
-  tft.setTextColor(ILI9341_BLACK);
-  tft.setCursor(40, 30);
-  tft.print("Adjust");
-  tft.setCursor(40, 50);
-  tft.print("Temp");
+  screen = SCREEN1;
 }
 
 /**
  * Displays screen 3
  **/
-void setScreen3() {
-  screen = 3;
+void setScreen2() {
+  screen = SCREEN2;
   drawLeftArrowBox();
   tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_fill, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_fill, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_fill, ILI9341_BLACK);
   tft.fillRect(x_Coordinate_Rect1+1, y_Coordinate_Rect1-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
   tft.fillRect(x_Coordinate_Rect2+1, y_Coordinate_Rect2-19, LengthOfRect-2, HeightOfRect-32, ILI9341_WHITE);
   tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1+HeightOfRect-35, LengthOfRect*2+30, HeightOfRect-30, ILI9341_LIGHTGREY);
@@ -517,7 +384,7 @@ void setScreen3() {
 }
 
 void TempScreen() {
-  screen = 4;
+  screen = TEMP;
   lowTmp = (int) tempLow;
   highTmp = (int) tempHigh;
   setValueScreen();
@@ -530,7 +397,7 @@ void TempScreen() {
 }
 
 void HumidityScreen() {
-  screen = 5;
+  screen = HUMIDITY;
   lowTmp = (int) humidityLow;
   highTmp = (int) humidityHigh;
   setValueScreen();
@@ -543,7 +410,7 @@ void HumidityScreen() {
 }
 
 void PressureScreen() {
-  screen = 6;
+  screen = PRESSURE;
   lowTmp = (int) pressureLow;
   highTmp = (int) pressureHigh;
   setValueScreen();
@@ -556,14 +423,14 @@ void PressureScreen() {
 }
 
 void Sensor4Screen() {
-  screen = 7;
+  screen = VOLT_CURRENT;
   lowTmp = (int) sensor4Low;
   lowTmp = (int) sensor4High;
   setValueScreen();
   tft.setCursor(5, 230);
   tft.setTextSize(1);
   tft.setTextColor(ILI9341_BLACK);
-  tft.print("SENSOR 4");
+  tft.print("VOLTAGE/CURRENT");
   printLowValue();
   printHighValue();
 }
@@ -571,10 +438,7 @@ void Sensor4Screen() {
 void setValueScreen() {
   tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
   tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
-  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
-  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1-20, LengthOfRect*2+30, 170, ILI9341_LIGHTGREY);                           // *****************************************
+  tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1-20, LengthOfRect*2+30, 170, ILI9341_LIGHTGREY);
   drawBackArrowBox(); //draw back arrow
   tft.drawRect(15, 65, 60, 40, ILI9341_BLACK);
   tft.fillRect(16, 66, 58, 38, ILI9341_BLUE);
@@ -607,7 +471,7 @@ void setValueScreen() {
   tft.setCursor(275, 72);
   tft.print('+');
 
-  if (screen == 4)
+  if (screen == TEMP)
   {
     if(tempUnit == 'C'){
       tft.setCursor(188, 130);
@@ -639,10 +503,8 @@ void setValueScreen() {
       tft.print('F');
     }
   }
-
-  if (screen == 6)
-  {
-    if (pressureUnit == "PSI"){
+  else if (screen == PRESSURE) {
+    if (pressureUnit == "PSI") {
       tft.setCursor(188, 130);
       tft.setTextColor(ILI9341_BLACK);
       tft.print("UNITS");
@@ -656,7 +518,7 @@ void setValueScreen() {
       tft.setCursor(250, 158);
       tft.print("Pa");
     }
-    else if (pressureUnit == "Pa"){
+    else if (pressureUnit == "Pa") {
       tft.setCursor(188, 130);
       tft.setTextColor(ILI9341_BLACK);
       tft.print("UNITS");
@@ -691,12 +553,9 @@ void printHighValue() {
 }
 
 void Bluetooth() {
-  screen = 8;
+  screen = BLUETOOTH;
   tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
   tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
-  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
   tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
   tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
   drawBackArrowBox(); //draw back arrow
@@ -704,12 +563,9 @@ void Bluetooth() {
 }
 
 void SD_Card() {
-  screen = 9;
+  screen = SD_CARD;
   tft.fillRect(15, 185, 60, 40, ILI9341_LIGHTGREY);   // get rid of left arrow box since screen does not have left screens
   tft.fillRect(245, 185, 60, 40, ILI9341_LIGHTGREY);  // get rid of right arrow box since screen does not have right screens
-  tft.fillCircle(x_Coordinate_Circle1, y_Coordinate_Circle1, Circle_size, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle2, y_Coordinate_Circle2, Circle_size, ILI9341_LIGHTGREY);
-  tft.fillCircle(x_Coordinate_Circle3, y_Coordinate_Circle3, Circle_size, ILI9341_LIGHTGREY);  //get rid of the circles
   tft.fillRect(x_Coordinate_Rect1, y_Coordinate_Rect1, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
   tft.fillRect(x_Coordinate_Rect2, y_Coordinate_Rect2, LengthOfRect, HeightOfRect, ILI9341_LIGHTGREY);
   drawBackArrowBox(); //draw back arrow
@@ -732,6 +588,30 @@ void Display_Value(float high, float low, float value, int textSize, int x, int 
     tft.setTextSize(3);
     tft.setTextColor(ILI9341_RED);
     tft.print("ERROR");
+  }
+}
+
+void checkScaleButtonPress(int x, int y) {
+  if ((x > 15 && x < 75) && (y > 15 && y < 55)){
+    tft.fillScreen(ILI9341_LIGHTGREY);
+    createGuiMainFrame();
+    setScreen2();  
+  }
+  else if ((x > 135 && x < 175) && (y > 65 && y < 90)) {
+    lowTmp--;
+    printLowValue();
+  }
+  else if ((x > 176 && x < 215) && (y > 65 && y < 90)) {
+    lowTmp++;
+    printLowValue();
+  }
+  else if ((x > 219 && x < 258) && (y > 65 && y < 90)) {
+    highTmp--;
+    printHighValue();
+  }
+  else if ((x > 259 && x < 269) && (y > 65 && y < 90)) {
+    highTmp++;
+    printHighValue();
   }
 }
 
