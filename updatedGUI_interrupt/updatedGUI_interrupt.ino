@@ -4,6 +4,9 @@
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_FT6206.h>
 
+#define    F_CPU   16000000UL
+
+// Screen numbers
 #define SCREEN1       1
 #define SCREEN2       2
 #define TEMP          3
@@ -13,26 +16,26 @@
 #define BLUETOOTH     7
 #define SD_CARD       8
 
+// dimensions of objects on screen
 #define LengthOfRect          115
 #define HeightOfRect          100
 #define x_Coordinate_Rect1    30
 #define y_Coordinate_Rect1    40
 #define x_Coordinate_Rect2    175
 #define y_Coordinate_Rect2    40
-
 #define WIDTH     320
 #define HEIGHT    240
-#define TFT_RST   8
-#define TFT_DC    9
-#define TFT_CS    10
-#define TFT_MOSI  11
-#define TFT_MISO  12
-#define TFT_CLK   13
+
+// Pin numbers
+#define TFT_RST   PB2
+#define TFT_DC    PB3
+#define TFT_CS    PB4
+#define TFT_MOSI  PB5
+#define TFT_MISO  PB6
+#define TFT_CLK   PB7
 
 const uint16_t t1_load = 0;
 const uint16_t t1_comp = 62500;
-
-volatile int interrupts;
 
 // utilizes SPI on Arduino to output data to touchscreen
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
@@ -56,8 +59,26 @@ float sensor4High = 5;
 float sensor4Low = 1;
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);  
+//  tft.begin();
   
+  if (! ts.begin(40)) {  // pass in 'sensitivity' coefficient
+    //Serial.println("Couldn't start FT6206 touchscreen controller");
+    while (1);
+  }
+
+  SPCR |= (1<<SPE);     // enable SPI
+  SPCR |= (1 << MSTR);  // set master mode
+  SPCR |= (1<<SPR1);    // divider of 64 -> 250 kHz
+  pinMode(TFT_CS, OUTPUT);
+  digitalWrite(TFT_CS, LOW);
+
+  tft.setRotation(3);   // rotates the screen to horizontal
+  tft.fillScreen(ILI9341_LIGHTGREY);   // sets background to gray
+
+  createGuiMainFrame();
+  setScreen1();
+
   TCCR1A = 0;   // reset timer1 control reg A
   // set to prescaler of 256
   TCCR1B |= (1<<CS12);
@@ -68,18 +89,6 @@ void setup() {
   OCR1A = t1_comp;
   TIMSK1 = (1<<OCIE1A);   // enable timer1 compare interrupt
   sei();    // enables global interrupts
-  
-  tft.begin();
-  if (! ts.begin(40)) {  // pass in 'sensitivity' coefficient
-    Serial.println("Couldn't start FT6206 touchscreen controller");
-    while (1);
-  }
-
-  tft.setRotation(3);   // rotates the screen to horizontal
-  tft.fillScreen(ILI9341_LIGHTGREY);   // sets background to gray
-
-  createGuiMainFrame();
-  setScreen1();
 }
 
 ISR(TIMER1_COMPA_vect) {
@@ -112,11 +121,11 @@ void loop() {
     p.y = map(p.y, 0, 320, 320, 0);
     int x = WIDTH - p.y;
     int y = p.x;
-
+/*
     Serial.print("("); Serial.print(x);
     Serial.print(", "); Serial.print(y);
     Serial.println(")");
-   
+*/   
     switch(screen) {
       case SCREEN1:
         // Right arrow pressed to move to screen 2
