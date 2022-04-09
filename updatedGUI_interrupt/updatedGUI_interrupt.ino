@@ -60,18 +60,12 @@ float sensor4Low = 1;
 
 void setup() {
   //Serial.begin(9600);  
-//  tft.begin();
+  tft.begin();
   
   if (! ts.begin(40)) {  // pass in 'sensitivity' coefficient
     //Serial.println("Couldn't start FT6206 touchscreen controller");
     while (1);
   }
-
-  SPCR |= (1<<SPE);     // enable SPI
-  SPCR |= (1 << MSTR);  // set master mode
-  SPCR |= (1<<SPR1);    // divider of 64 -> 250 kHz
-  pinMode(TFT_CS, OUTPUT);
-  digitalWrite(TFT_CS, LOW);
 
   tft.setRotation(3);   // rotates the screen to horizontal
   tft.fillScreen(ILI9341_LIGHTGREY);   // sets background to gray
