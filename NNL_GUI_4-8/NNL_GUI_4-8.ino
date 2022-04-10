@@ -282,7 +282,7 @@ void loop() {
           tft.setTextColor(ILI9341_WHITE);
           tft.setCursor(172, 158);
           tft.print('V');
-          tft.setCursor(255, 158);
+          tft.setCursor(250, 158);
           tft.print("mA");
           voltCurrentUnit = "mA";
         }   
@@ -585,6 +585,20 @@ void setValueScreen() {
       tft.setCursor(250, 158);
       tft.print("Pa");
     }
+  }
+  else if (screen == VOLT_CURRENT) {
+    tft.setCursor(188, 130);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.print("UNITS");
+    tft.drawRect(135, 150, 165, 30, ILI9341_BLACK);
+    tft.drawFastVLine(217, 151, 28, ILI9341_BLACK);
+    tft.fillRect(136, 151, 81, 28, ILI9341_RED);
+    tft.fillRect(218, 151, 81, 28, ILI9341_DARKGREEN);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.setCursor(172, 158);
+    tft.print('V');
+    tft.setCursor(250, 158);
+    tft.print("mA");
   }
 }
 
