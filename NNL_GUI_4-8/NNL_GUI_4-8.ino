@@ -55,12 +55,17 @@ uint8_t screen;
 float tempValue, humidityValue, pressureValue, voltCurrentValue;
 float tempHigh = 80;
 float tempLow = -40;        // Celsius by default
+bool tempOn = 0; //enable and disable channel streaming
 float humidityHigh = 100;
 float humidityLow = 0;    // %
+bool humidityOn = 0; //enable and disable channel streaming
 float pressureHigh = 100;
 float pressureLow = 0;    // PSI by default
+bool pressureOn = 0;//enable and disable channel streaming
 float voltCurrentHigh = 5;
 float voltCurrentLow = 1;
+bool voltCurrentOn = 0; //enable and disable channel streaming
+
 
 File dataFile;
 char sdArr[50];
@@ -111,11 +116,14 @@ ISR(TIMER1_COMPA_vect) {
     tft.fillRect(185, 45, 90, 22, ILI9341_WHITE);
     tft.fillRect(40, 130, 90, 22, ILI9341_WHITE);
     tft.fillRect(185, 130, 90, 22, ILI9341_WHITE);
-        
+    if(tempOn)
     Display_Value(tempHigh, tempLow, tempValue, 2, 40, 45);                 // display temperature value
+    if(humidityOn)
     Display_Value(humidityHigh, humidityLow, humidityValue, 2, 185, 45);    // display humidity value
-    //Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 130);    // display pressure value
-    //Display_Value(voltCurrentHigh, voltCurrentLow, voltCurrentValue, 2, 185, 130);   // display volt/current value
+    if(pressureOn)
+    Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 130);    // display pressure value
+    if(voltCurrentOn)
+    Display_Value(voltCurrentHigh, voltCurrentLow, voltCurrentValue, 2, 185, 130);   // display volt/current value
   }
   if (sdFlag) {
     digitalWrite(TFT_CS, HIGH);
