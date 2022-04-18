@@ -40,11 +40,11 @@ const uint16_t t1_load = 0;
 const uint16_t t1_comp = 62500;
 
 // utilizes SPI on Arduino to output data to touchscreen
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 // utilizes I2C on Arduino to get touch screen points
 Adafruit_FT6206 ts = Adafruit_FT6206();
 
-SoftwareSerial bt(btRX, btTX);
+//SoftwareSerial bt(btRX, btTX);
 
 int lowTmp, highTmp;
 char tempUnit = 'C';
@@ -55,17 +55,12 @@ uint8_t screen;
 float tempValue, humidityValue, pressureValue, voltCurrentValue;
 float tempHigh = 80;
 float tempLow = -40;        // Celsius by default
-bool tempOn = 0; //enable and disable channel streaming
 float humidityHigh = 100;
 float humidityLow = 0;    // %
-bool humidityOn = 0; //enable and disable channel streaming
 float pressureHigh = 100;
 float pressureLow = 0;    // PSI by default
-bool pressureOn = 0;//enable and disable channel streaming
 float voltCurrentHigh = 5;
 float voltCurrentLow = 1;
-bool voltCurrentOn = 0; //enable and disable channel streaming
-
 
 File dataFile;
 char sdArr[50];
@@ -73,15 +68,11 @@ bool sdFlag = true;
 bool btFlag = true;
 
 void setup() {
-  bt.begin(9600);
+  //bt.begin(9600);
   tft.begin();
   ts.begin(40);   // pass in sensitivity coefficient
-  //SD.begin(SD_CS);
-/*
-  SPCR &= ~(1<<SPI2X);
-  SPCR &= ~(1<<SPR1);
-  SPCR |= (1<<SPR0);
-*/
+  SD.begin(SD_CS);
+
   pinMode(TFT_CS, OUTPUT);
   digitalWrite(TFT_CS, LOW);
   pinMode(SD_CS, OUTPUT);
@@ -116,13 +107,10 @@ ISR(TIMER1_COMPA_vect) {
     tft.fillRect(185, 45, 90, 22, ILI9341_WHITE);
     tft.fillRect(40, 130, 90, 22, ILI9341_WHITE);
     tft.fillRect(185, 130, 90, 22, ILI9341_WHITE);
-    if(tempOn)
+        
     Display_Value(tempHigh, tempLow, tempValue, 2, 40, 45);                 // display temperature value
-    if(humidityOn)
     Display_Value(humidityHigh, humidityLow, humidityValue, 2, 185, 45);    // display humidity value
-    if(pressureOn)
     Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 130);    // display pressure value
-    if(voltCurrentOn)
     Display_Value(voltCurrentHigh, voltCurrentLow, voltCurrentValue, 2, 185, 130);   // display volt/current value
   }
   if (sdFlag) {
@@ -135,14 +123,14 @@ ISR(TIMER1_COMPA_vect) {
     digitalWrite(SD_CS, HIGH);
     digitalWrite(TFT_CS, LOW);
   }
-  
+  /*
   if (btFlag) {
     bt.println("Temp: " + String(tempValue));
     bt.println("Humi: " + String(humidityValue));
     bt.println("Pres: " + String(pressureValue));
     bt.println("V/C: " + String(voltCurrentValue));
   }
-  
+  */
 }
 
 void loop() {
