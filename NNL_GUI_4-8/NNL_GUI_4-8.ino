@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <SD.h>
+#include <SoftwareSerial.h>
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_FT6206.h>
 
@@ -31,6 +32,9 @@
 #define TFT_MOSI  PB5
 #define TFT_MISO  PB6
 #define TFT_CLK   PB7
+#define SD_CS     PD2
+#define btTX      PD6
+#define btRX      PD7
 
 const uint16_t t1_load = 0;
 const uint16_t t1_comp = 62500;
@@ -40,14 +44,15 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_R
 // utilizes I2C on Arduino to get touch screen points
 Adafruit_FT6206 ts = Adafruit_FT6206();
 
+SoftwareSerial bt(btRX, btTX);
+
 int lowTmp, highTmp;
 char tempUnit = 'C';
 char humidityUnit = '%';
 String pressureUnit = String("PSI");
 String voltCurrentUnit = String('V');
-char sensor4Unit;
 uint8_t screen;
-float tempValue, humidityValue, pressureValue, sensor4Value;
+float tempValue, humidityValue, pressureValue, voltCurrentValue;
 float tempHigh = 80;
 float tempLow = -40;        // Celsius by default
 float humidityHigh = 100;
@@ -57,17 +62,31 @@ float pressureLow = 0;    // PSI by default
 float voltCurrentHigh = 5;
 float voltCurrentLow = 1;
 
-bool sdFlag = false;
-bool btFlag = false;
+File dataFile;
+char sdArr[50];
+bool sdFlag = true;
+bool btFlag = true;
 
-void setup() { 
+void setup() {
+  bt.begin(9600);
   tft.begin();
   ts.begin(40);   // pass in sensitivity coefficient
+  //SD.begin(SD_CS);
+/*
+  SPCR &= ~(1<<SPI2X);
+  SPCR &= ~(1<<SPR1);
+  SPCR |= (1<<SPR0);
+*/
+  pinMode(TFT_CS, OUTPUT);
+  digitalWrite(TFT_CS, LOW);
+  pinMode(SD_CS, OUTPUT);
+  digitalWrite(SD_CS, HIGH);
 
   tft.setRotation(3);   // rotates the screen to horizontal
   tft.fillScreen(ILI9341_LIGHTGREY);   // sets background to gray
 
   setScreen1();
+  SD_Init();
 
   TCCR1A = 0;   // reset timer1 control reg A
   // set to prescaler of 256
@@ -87,17 +106,35 @@ ISR(TIMER1_COMPA_vect) {
     tempValue = analogRead(0);
     humidityValue = analogRead(1);
     pressureValue = analogRead(2);
-    sensor4Value = analogRead(3);
+    voltCurrentValue = analogRead(3);
     tft.fillRect(40, 45, 90, 22, ILI9341_WHITE);
     tft.fillRect(185, 45, 90, 22, ILI9341_WHITE);
     tft.fillRect(40, 130, 90, 22, ILI9341_WHITE);
     tft.fillRect(185, 130, 90, 22, ILI9341_WHITE);
         
-    Display_Value(tempHigh, tempLow, tempValue, 2, 40, 45);
-    Display_Value(humidityHigh, humidityLow, humidityValue, 2, 185, 45);
-    Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 130);
-    Display_Value(pressureHigh, pressureLow, pressureValue, 2, 185, 130);
+    Display_Value(tempHigh, tempLow, tempValue, 2, 40, 45);                 // display temperature value
+    Display_Value(humidityHigh, humidityLow, humidityValue, 2, 185, 45);    // display humidity value
+    //Display_Value(pressureHigh, pressureLow, pressureValue, 2, 40, 130);    // display pressure value
+    //Display_Value(voltCurrentHigh, voltCurrentLow, voltCurrentValue, 2, 185, 130);   // display volt/current value
   }
+  if (sdFlag) {
+    digitalWrite(TFT_CS, HIGH);
+    digitalWrite(SD_CS, LOW);
+    dataFile = SD.open("file.csv", FILE_WRITE);
+    sprintf(sdArr, "%d,%d,%d,%d", tempValue, humidityValue, pressureValue, voltCurrentValue);
+    dataFile.println(sdArr);
+    dataFile.close();
+    digitalWrite(SD_CS, HIGH);
+    digitalWrite(TFT_CS, LOW);
+  }
+  
+  if (btFlag) {
+    bt.println("Temp: " + String(tempValue));
+    bt.println("Humi: " + String(humidityValue));
+    bt.println("Pres: " + String(pressureValue));
+    bt.println("V/C: " + String(voltCurrentValue));
+  }
+  
 }
 
 void loop() {
@@ -116,29 +153,41 @@ void loop() {
       case SCREEN1:
         // Right arrow pressed to move to screen 2
         if ((x > 245 && x < 305) && (y > 185 && y < 225)) {
+          cli();
           setScreen2();
+          sei();
         }
         else if ((x > 30 && x < 145) && (y > 20 && y < 90)) {
+          cli();
           TempScreen();
+          sei();
         }
 
         else if ((x > 175 && x < 290) && (y > 20 && y < 90)) {
+          cli();
           HumidityScreen();
+          sei();
         }
 
         else if ((x > 30 && x < 145) && (y > 105 && y < 175)) {
+          cli();
           PressureScreen();
+          sei();
         }
 
         else if ((x > 175 && x < 290) && (y > 105 && y < 175)) {
+          cli();
           VoltCurrentScreen();
+          sei();
         }   
         break; 
 
       case SCREEN2:
         if ((x > 15 && x < 75) && (y > 185 && y < 225)) {
+          cli();
           tft.fillRect(10, 29, 350, 100, ILI9341_LIGHTGREY);
           setScreen1();
+          sei();
         }
         else if((x > 135 && x < 215) && (y > 30 && y < 60)){
           tft.fillRect(136, 31, 81, 28, ILI9341_DARKGREEN);
@@ -187,12 +236,16 @@ void loop() {
         break;
 
       case TEMP:
+        cli();
         checkScaleButtonPress(x, y);
+        sei();
         if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           tempLow = lowTmp;
           tempHigh = highTmp;
+          cli();
           tft.fillScreen(ILI9341_LIGHTGREY);
           setScreen1();
+          sei();
         }
         else if((x > 135 && x < 215) && (y > 150 && y < 180)){
           tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
@@ -217,22 +270,30 @@ void loop() {
         break;
 
       case HUMIDITY:
+        cli();
         checkScaleButtonPress(x, y);
+        sei();
         if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           humidityLow = lowTmp;
           humidityHigh = highTmp;
+          cli();
           tft.fillScreen(ILI9341_LIGHTGREY);
           setScreen1();
+          sei();
         }
         break;
 
       case PRESSURE:
+        cli();
         checkScaleButtonPress(x, y);
+        sei();
         if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           pressureLow = lowTmp;
           pressureHigh = highTmp;
+          cli();
           tft.fillScreen(ILI9341_LIGHTGREY);
           setScreen1();
+          sei();
         }
         else if((x > 135 && x < 215) && (y > 150 && y < 180)){
           tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
@@ -259,12 +320,16 @@ void loop() {
         break;
 
       case VOLT_CURRENT:
+        cli();
         checkScaleButtonPress(x, y);
+        sei();
         if ((x > 15 && x < 75) && (y > 65 && y < 105)) {
           voltCurrentLow = lowTmp;
           voltCurrentHigh = highTmp;
+          cli();
           tft.fillScreen(ILI9341_LIGHTGREY);
           setScreen1();
+          sei();
         }
         else if((x > 135 && x < 215) && (y > 150 && y < 180)){
           tft.fillRect(136, 151, 81, 28, ILI9341_DARKGREEN);
@@ -379,7 +444,7 @@ void setScreen1() {
   tft.print(humidityUnit);
 
   tft.setCursor(272, 155);
-  tft.print('V');
+  tft.print(voltCurrentUnit);
   
   screen = SCREEN1;
 }
@@ -635,6 +700,16 @@ void Display_Value(float high, float low, float value, int textSize, int x, int 
     tft.setTextColor(ILI9341_RED);
     tft.print("ERROR");
   }
+}
+
+void SD_Init() {
+  digitalWrite(TFT_CS, HIGH);
+  digitalWrite(SD_CS, LOW);
+  dataFile = SD.open("file.csv", FILE_WRITE);
+  dataFile.println("Temperature,Humidity,Pressure,Volt/Current");
+  dataFile.close();
+  digitalWrite(SD_CS, HIGH);
+  digitalWrite(TFT_CS, LOW);
 }
 
 void checkScaleButtonPress(int x, int y) {
